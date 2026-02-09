@@ -3,7 +3,7 @@ import Form from "./components/Form"
 
 function App() {
   return (
-    <Container maxW={"3/4"} my={"8"} display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"}>
+    <Container maxW={"3/4"} my={"8"} display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"} gap={"8"}>
       <Heading size={"4xl"}>
         Bug or a Feature
       </Heading>
