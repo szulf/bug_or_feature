@@ -1,10 +1,14 @@
+import { Container, Heading } from "@chakra-ui/react"
+import Form from "./components/Form"
+
 function App() {
   return (
-    <>
-      <h1 className="text-3xl font-bold underline">
-        Hello world!
-      </h1>
-    </>
+    <Container maxW={"3/4"} my={"8"} display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"}>
+      <Heading size={"4xl"}>
+        Bug or a Feature
+      </Heading>
+      <Form />
+    </Container>
   )
 }
 
