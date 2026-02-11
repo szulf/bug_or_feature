@@ -2,6 +2,7 @@ import { Box, Field, Textarea, FileUpload, Icon, Button } from "@chakra-ui/react
 import type React from "react"
 import { useState } from "react"
 import { LuUpload } from "react-icons/lu"
+import { Spinner } from "@chakra-ui/react"
 import { BugOrFeature, PostCreationDataSchema, type PostCreationData } from "../types/PostCreationData"
 import { toaster } from "./ui/toaster"
 
@@ -10,8 +11,10 @@ function Form() {
     message: "",
     owners_post_choice: null
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+    setIsSubmitting(true)
     e.preventDefault()
 
     try {
@@ -27,12 +30,17 @@ function Form() {
           })
 
           console.log(postCreationData)
+          setIsSubmitting(false)
         }, 1000);
       });
 
 
     } catch(err) {
       // TODO: handle error
+      toaster.create({
+        type: "error",
+        title: "Something went wrong!"
+      })
     }
   }
 
@@ -84,7 +92,9 @@ function Form() {
               </Box>
             </Field.Root>
 
-            <Button alignSelf={"flex-end"} type="submit">Submit your invention</Button>
+            <Button alignSelf={"flex-end"} type="submit" disabled={isSubmitting} w={"sm"}>
+              {isSubmitting ? <Spinner />: "Upload your invention"}
+            </Button>
           </Box>
         </form>
     </Box>
