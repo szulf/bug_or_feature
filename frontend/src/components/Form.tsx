@@ -2,7 +2,8 @@ import { Box, Field, Textarea, FileUpload, Icon, Button } from "@chakra-ui/react
 import type React from "react"
 import { useState } from "react"
 import { LuUpload } from "react-icons/lu"
-import { BugOrFeature, type PostCreationData } from "../types/PostCreationData"
+import { BugOrFeature, PostCreationDataSchema, type PostCreationData } from "../types/PostCreationData"
+import { toaster } from "./ui/toaster"
 
 function Form() {
   const [formData, setFormData] = useState<PostCreationData>({
@@ -13,8 +14,26 @@ function Form() {
   function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    console.log(formData)
-    console.log("send data")
+    try {
+      const postCreationData = PostCreationDataSchema.parse(formData)
+
+      // INFO: mock backend call
+      new Promise(function(resolve) {
+        setTimeout(() => {
+          resolve("")
+          toaster.create({
+            type: "success",
+            title: "Post created successfully"
+          })
+
+          console.log(postCreationData)
+        }, 1000);
+      });
+
+
+    } catch(err) {
+      // TODO: handle error
+    }
   }
 
   return (
@@ -52,12 +71,12 @@ function Form() {
                 Is your invention a bug or a feature?
               </Field.Label>
               <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"} gap={"8"}>
-                <Button w={"40"} h={"40"} fontSize={"4xl"} disabled={formData.owners_post_choice === BugOrFeature.Bug}
+                <Button w={"40"} h={"40"} fontSize={"4xl"}
                 variant={formData.owners_post_choice === BugOrFeature.Bug ? "solid": "outline"} onClick={() => setFormData({
                   ...formData,
                   owners_post_choice: BugOrFeature.Bug
                 })}>BUG</Button>
-                <Button w={"40"} h={"40"} fontSize={"4xl"} disabled={formData.owners_post_choice === BugOrFeature.Feature}
+                <Button w={"40"} h={"40"} fontSize={"4xl"}
                 variant={formData.owners_post_choice === BugOrFeature.Feature ? "solid": "outline"} onClick={() => setFormData({
                   ...formData,
                   owners_post_choice: BugOrFeature.Feature
