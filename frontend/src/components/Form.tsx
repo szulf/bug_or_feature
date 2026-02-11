@@ -19,28 +19,32 @@ function Form() {
 
     try {
       const postCreationData = PostCreationDataSchema.parse(formData)
+      const body = new FormData()
 
-      // INFO: mock backend call
-      new Promise(function(resolve) {
-        setTimeout(() => {
-          resolve("")
-          toaster.create({
-            type: "success",
-            title: "Post created successfully"
-          })
+      body.append("message", postCreationData.message)
+      body.append("owners_post_choice", postCreationData.owners_post_choice)
+      // TODO: append image to form data
 
-          console.log(postCreationData)
-          setIsSubmitting(false)
-        }, 1000);
-      });
-
-
-    } catch(err) {
-      // TODO: handle error
-      toaster.create({
-        type: "error",
-        title: "Something went wrong!"
+      const response = fetch("http://localhost:3000/add-post", {
+        body: body,
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        }
       })
+
+      toaster.create({
+        type: "success",
+        title: "Post created successfully"
+      })
+
+      setIsSubmitting(false)
+      } catch(err) {
+        // TODO: handle error
+        toaster.create({
+          type: "error",
+          title: "Something went wrong!"
+        })
     }
   }
 
