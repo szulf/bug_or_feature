@@ -13,7 +13,7 @@ function Form() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     setIsSubmitting(true)
     e.preventDefault()
 
@@ -25,13 +25,15 @@ function Form() {
       body.append("owners_post_choice", postCreationData.owners_post_choice)
       // TODO: append image to form data
 
-      const response = fetch("http://localhost:3000/add-post", {
+      const response = await fetch("http://localhost:3000/add-post", {
         body: body,
         method: "POST",
         headers: {
           "Content-Type": "multipart/form-data",
         }
       })
+
+      const postId = await response.json() as string
 
       toaster.create({
         type: "success",
