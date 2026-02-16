@@ -5,6 +5,7 @@ import { LuUpload } from "react-icons/lu"
 import { Spinner } from "@chakra-ui/react"
 import { BugOrFeature, PostCreationDataSchema, type PostCreationData } from "../types/PostCreationData"
 import { toaster } from "./ui/toaster"
+import { ZodError} from "zod"
 
 function Form() {
   const [formData, setFormData] = useState<PostCreationData>({
@@ -34,6 +35,7 @@ function Form() {
       })
 
       const postId = await response.json() as string
+      // TODO: create a request to post image data
 
       toaster.create({
         type: "success",
@@ -43,9 +45,16 @@ function Form() {
       setIsSubmitting(false)
       } catch(err) {
         // TODO: handle error
+        setIsSubmitting(false)
+        let toastTitle = ""
+
+        if (err instanceof ZodError) {
+          toastTitle = "Cannot submit invalid values!" 
+        }
+
         toaster.create({
           type: "error",
-          title: "Something went wrong!"
+          title: toastTitle
         })
     }
   }
@@ -84,13 +93,15 @@ function Form() {
               <Field.Label>
                 Is your invention a bug or a feature?
               </Field.Label>
-              <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"} gap={"8"}>
+              <Box w={"full"} display={"flex"} justifyContent={"center"} alignItems={"center"} gap={"8"}>
                 <Button w={"40"} h={"40"} fontSize={"4xl"}
+                scale={0.85}
                 variant={formData.owners_post_choice === BugOrFeature.Bug ? "solid": "outline"} onClick={() => setFormData({
                   ...formData,
                   owners_post_choice: BugOrFeature.Bug
                 })}>BUG</Button>
                 <Button w={"40"} h={"40"} fontSize={"4xl"}
+                scale={0.85}
                 variant={formData.owners_post_choice === BugOrFeature.Feature ? "solid": "outline"} onClick={() => setFormData({
                   ...formData,
                   owners_post_choice: BugOrFeature.Feature
@@ -98,7 +109,7 @@ function Form() {
               </Box>
             </Field.Root>
 
-            <Button alignSelf={"flex-end"} type="submit" disabled={isSubmitting} w={"sm"}>
+            <Button type="submit" disabled={isSubmitting} w={"full"}>
               {isSubmitting ? <Spinner />: "Upload your invention"}
             </Button>
           </Box>
