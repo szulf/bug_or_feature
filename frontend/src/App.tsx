@@ -1,5 +1,5 @@
 import { Container, Heading } from "@chakra-ui/react"
-import Form from "./components/Form"
+import PageTabs from "./components/PageTabs"
 
 function App() {
   return (
@@ -7,7 +7,7 @@ function App() {
       <Heading size={"4xl"}>
         Bug or a Feature
       </Heading>
-      <Form />
+      <PageTabs /> 
     </Container>
   )
 }
