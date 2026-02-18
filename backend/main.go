@@ -122,6 +122,8 @@ func (a *App) AddPost(c fiber.Ctx) error {
 }
 
 func main() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
+
 	store := mongodb.New(mongodb.Config{
 		ConnectionURI: "mongodb://root:example@localhost:27017/",
 		Database:      "bug",
