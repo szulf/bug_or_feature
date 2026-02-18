@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/storage/mongodb"
 	"github.com/google/uuid"
 )
@@ -134,6 +135,7 @@ func main() {
 	}
 
 	f := fiber.New()
+	f.Use(cors.New())
 
 	f.Post("/add-post", app.AddPost)
 
