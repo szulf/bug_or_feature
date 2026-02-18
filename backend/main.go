@@ -69,29 +69,30 @@ func extensionFromMIME(mime string) string {
 	return ""
 }
 
+// TODO: do any of the errors leave some bad state behind?
 func (a *App) AddPost(c fiber.Ctx) error {
 	message := c.FormValue("message")
 	ownersPostChoice := c.FormValue("owners_post_choice")
 	if message == "" || (ownersPostChoice != "BUG" && ownersPostChoice != "FEATURE") {
-		log.Println("invalid arguments in AddPost ")
-		return nil
+		log.Println("Invalid arguments in AddPost.")
+		return fiber.ErrBadRequest
 	}
 
 	image, err := c.FormFile("image")
 	if err != nil {
-		log.Println("failed to get form image file")
-		return nil
+		log.Println("Failed to get form image file.")
+		return fiber.ErrBadRequest
 	}
 	file, err := image.Open()
 	if err != nil {
-		log.Println("failed to open form image file")
-		return nil
+		log.Println("Failed to open form image file.")
+		return fiber.ErrBadRequest
 	}
 	imageData := make([]byte, image.Size)
 	_, err = file.Read(imageData)
 	if err != nil {
-		log.Println("failed to read form image file")
-		return nil
+		log.Println("Failed to read form image file.")
+		return fiber.ErrBadRequest
 	}
 	filename := make([]byte, 16)
 	contentType := image.Header.Get("Content-Type")
@@ -99,8 +100,8 @@ func (a *App) AddPost(c fiber.Ctx) error {
 	imgPath := filepath.Join("images", hex.EncodeToString(filename)+"."+extensionFromMIME(contentType))
 	err = os.WriteFile(imgPath, imageData, 0666)
 	if err != nil {
-		log.Println("failed to write image file")
-		return nil
+		log.Println("Failed to write image file on server.")
+		return fiber.ErrInternalServerError
 	}
 
 	post := Post{
@@ -114,9 +115,8 @@ func (a *App) AddPost(c fiber.Ctx) error {
 	}
 	err = a.storePost(post)
 	if err != nil {
-		fmt.Println("failed to store post in db")
-		// TODO: http error code
-		return nil
+		fmt.Println("Failed to store post in database.")
+		return fiber.ErrInternalServerError
 	}
 	return c.SendString(post.Id)
 }
