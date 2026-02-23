@@ -78,30 +78,29 @@ func (a *App) AddPost(c fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
+	imgPath := ""
 	image, err := c.FormFile("image")
-	if err != nil {
-		log.Println("Failed to get form image file.")
-		return fiber.ErrBadRequest
-	}
-	file, err := image.Open()
-	if err != nil {
-		log.Println("Failed to open form image file.")
-		return fiber.ErrBadRequest
-	}
-	imageData := make([]byte, image.Size)
-	_, err = file.Read(imageData)
-	if err != nil {
-		log.Println("Failed to read form image file.")
-		return fiber.ErrBadRequest
-	}
-	filename := make([]byte, 16)
-	contentType := image.Header.Get("Content-Type")
-	rand.Read(filename)
-	imgPath := filepath.Join("images", hex.EncodeToString(filename)+"."+extensionFromMIME(contentType))
-	err = os.WriteFile(imgPath, imageData, 0666)
-	if err != nil {
-		log.Println("Failed to write image file on server.")
-		return fiber.ErrInternalServerError
+	if err == nil {
+		file, err := image.Open()
+		if err != nil {
+			log.Println("Failed to open form image file.")
+			return fiber.ErrBadRequest
+		}
+		imageData := make([]byte, image.Size)
+		_, err = file.Read(imageData)
+		if err != nil {
+			log.Println("Failed to read form image file.")
+			return fiber.ErrBadRequest
+		}
+		filename := make([]byte, 16)
+		contentType := image.Header.Get("Content-Type")
+		rand.Read(filename)
+		imgPath = filepath.Join("images", hex.EncodeToString(filename)+"."+extensionFromMIME(contentType))
+		err = os.WriteFile(imgPath, imageData, 0666)
+		if err != nil {
+			log.Println("Failed to write image file on server.")
+			return fiber.ErrInternalServerError
+		}
 	}
 
 	post := Post{
