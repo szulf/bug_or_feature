@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -14,6 +15,7 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/storage/mongodb"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type PostType string
@@ -24,13 +26,13 @@ const (
 )
 
 type Post struct {
-	Id               string           `json:"id"`
-	Message          string           `json:"message"`
-	ImagePath        string           `json:"image_path"`
-	CreationDate     time.Time        `json:"creation_date"`
-	OwnersPostChoice PostType         `json:"owners_post_choice"`
-	VoteCounts       map[PostType]int `json:"vote_counts"`
-	UpvoteCount      int              `json:"upvote_count"`
+	Id               string           `json:"id" bson:"id"`
+	Message          string           `json:"message" bson:"message"`
+	ImagePath        string           `json:"image_path" bson:"image_path"`
+	CreationDate     time.Time        `json:"creation_date" bson:"creation_date"`
+	OwnersPostChoice PostType         `json:"owners_post_choice" bson:"owners_post_choice"`
+	VoteCounts       map[PostType]int `json:"vote_counts" bson:"vote_counts"`
+	UpvoteCount      int              `json:"upvote_count" bson:"upvote_count"`
 }
 
 type App struct {
@@ -62,6 +64,40 @@ func (a *App) getPostById(id string) (Post, error) {
 	return post, nil
 }
 
+func (a *App) getPosts() ([]Post, error) {
+	type DBEntry struct {
+		Key   string `bson:"key"`
+		Value []byte `bson:"value"`
+	}
+
+	cur, err := a.store.Conn().Collection("bugs").Find(context.TODO(), bson.D{})
+	if err != nil {
+		log.Println("error doing something idk")
+		return nil, err
+	}
+	defer cur.Close(context.TODO())
+
+	posts := []Post{}
+	for cur.Next(context.TODO()) {
+		entry := DBEntry{}
+		err := cur.Decode(&entry)
+		if err != nil {
+			log.Println("Failed to decode DBEntry.")
+			return nil, err
+		}
+
+		p := Post{}
+		if err := json.Unmarshal(entry.Value, &p); err != nil {
+			log.Println("Failed to decode post json.")
+			return nil, err
+		}
+
+		posts = append(posts, p)
+	}
+
+	return posts, nil
+}
+
 func extensionFromMIME(mime string) string {
 	if mime == "image/jpeg" {
 		return "jpg"
@@ -78,30 +114,29 @@ func (a *App) AddPost(c fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
+	imgPath := ""
 	image, err := c.FormFile("image")
-	if err != nil {
-		log.Println("Failed to get form image file.")
-		return fiber.ErrBadRequest
-	}
-	file, err := image.Open()
-	if err != nil {
-		log.Println("Failed to open form image file.")
-		return fiber.ErrBadRequest
-	}
-	imageData := make([]byte, image.Size)
-	_, err = file.Read(imageData)
-	if err != nil {
-		log.Println("Failed to read form image file.")
-		return fiber.ErrBadRequest
-	}
-	filename := make([]byte, 16)
-	contentType := image.Header.Get("Content-Type")
-	rand.Read(filename)
-	imgPath := filepath.Join("images", hex.EncodeToString(filename)+"."+extensionFromMIME(contentType))
-	err = os.WriteFile(imgPath, imageData, 0666)
-	if err != nil {
-		log.Println("Failed to write image file on server.")
-		return fiber.ErrInternalServerError
+	if err == nil {
+		file, err := image.Open()
+		if err != nil {
+			log.Println("Failed to open form image file.")
+			return fiber.ErrBadRequest
+		}
+		imageData := make([]byte, image.Size)
+		_, err = file.Read(imageData)
+		if err != nil {
+			log.Println("Failed to read form image file.")
+			return fiber.ErrBadRequest
+		}
+		filename := make([]byte, 16)
+		contentType := image.Header.Get("Content-Type")
+		rand.Read(filename)
+		imgPath = filepath.Join("images", hex.EncodeToString(filename)+"."+extensionFromMIME(contentType))
+		err = os.WriteFile(imgPath, imageData, 0666)
+		if err != nil {
+			log.Println("Failed to write image file on server.")
+			return fiber.ErrInternalServerError
+		}
 	}
 
 	post := Post{
@@ -119,6 +154,16 @@ func (a *App) AddPost(c fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 	return c.SendString(post.Id)
+}
+
+// TODO: probably need to handle some pagination and not just return all of them
+func (a *App) GetPosts(c fiber.Ctx) error {
+	posts, err := a.getPosts()
+	if err != nil {
+		log.Println("Failed to get all posts.")
+		return fiber.ErrInternalServerError
+	}
+	return c.JSON(posts)
 }
 
 func main() {
@@ -140,6 +185,7 @@ func main() {
 	f.Use(cors.New())
 
 	f.Post("/add-post", app.AddPost)
+	f.Get("/test", app.GetPosts)
 
 	f.Listen(":3000")
 }
