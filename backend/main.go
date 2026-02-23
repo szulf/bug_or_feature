@@ -137,7 +137,11 @@ func main() {
 	}
 
 	f := fiber.New()
-	f.Use(cors.New())
+	f.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{"*"},
+		AllowMethods: []string{"*"},
+	}))
 
 	f.Post("/add-post", app.AddPost)
 

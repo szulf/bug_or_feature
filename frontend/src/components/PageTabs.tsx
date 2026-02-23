@@ -1,6 +1,7 @@
 import { Tabs } from '@chakra-ui/react'
 import { LuLibraryBig, LuFilePlus, LuTrophy } from "react-icons/lu"
 import Form from './Form'
+import AllPosts from './AllPosts'
 
 function PageTabs() {
   return (
@@ -20,8 +21,7 @@ function PageTabs() {
         </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="all_posts">
-        {/* TODO: create all posts component*/}
-        All posts will go here
+        <AllPosts />
       </Tabs.Content>
       <Tabs.Content value="create_new_post">
         <Form />

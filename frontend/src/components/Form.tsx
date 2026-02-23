@@ -26,7 +26,7 @@ function Form() {
       body.append("owners_post_choice", postCreationData.owners_post_choice)
       // TODO: append image to form data
 
-      const response = await fetch("http://localhost:3000/add-post", {
+      const response = await fetch("https://glowing-space-carnival-v4jgrwp4vqq2x44q-3000.app.github.dev/add-post", {
         body: body,
         method: "POST",
         headers: {
