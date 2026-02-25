@@ -13,3 +13,4 @@ school project
 # todos
 
 - do the thing
+- failed to write image on the server communicate maybe because of the image.Header.Get("Content-Type")

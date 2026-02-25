@@ -6,13 +6,23 @@ import { Spinner } from "@chakra-ui/react"
 import { BugOrFeature, PostCreationDataSchema, type PostCreationData } from "../types/PostCreationData"
 import { toaster } from "./ui/toaster"
 import { ZodError} from "zod"
+import type { FileChangeDetails } from "@zag-js/file-upload"
 
 function Form() {
   const [formData, setFormData] = useState<PostCreationData>({
     message: "",
     owners_post_choice: null
   })
+
+  const [file, setFile] = useState<File | null>()
+
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  function selectFile(details: FileChangeDetails) {
+    setFile(details.acceptedFiles[0])
+    console.log(details.acceptedFiles[0])
+  }
+
 
   async function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     setIsSubmitting(true)
@@ -24,38 +34,40 @@ function Form() {
 
       body.append("message", postCreationData.message)
       body.append("owners_post_choice", postCreationData.owners_post_choice)
-      // TODO: append image to form data
 
-      const response = await fetch("http://localhost:3000/add-post", {
+      if (file) {
+        body.append("image", file)
+      }
+
+      await fetch("http://localhost:3000/add-post", {
         body: body,
         method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        }
       })
-
-      const postId = await response.json() as string
-      // TODO: create a request to post image data
 
       toaster.create({
         type: "success",
-        title: "Post created successfully"
+        title: `Post ${postCreationData.message} created successfully!`
       })
 
+      setTimeout(() => {
+        window.location.reload()
+      }, 300)
+
+    setIsSubmitting(false)
+    } catch(err) {
+      // TODO: handle error
       setIsSubmitting(false)
-      } catch(err) {
-        // TODO: handle error
-        setIsSubmitting(false)
-        let toastTitle = ""
+      let toastTitle = ""
+      console.log(err)
 
-        if (err instanceof ZodError) {
-          toastTitle = "Cannot submit invalid values!" 
-        }
+      if (err instanceof ZodError) {
+        toastTitle = "Cannot submit invalid values!" 
+      }
 
-        toaster.create({
-          type: "error",
-          title: toastTitle
-        })
+      toaster.create({
+        type: "error",
+        title: toastTitle
+      })
     }
   }
 
@@ -73,7 +85,9 @@ function Form() {
                 })} />
             </Field.Root>
 
-            <FileUpload.Root maxFiles={1} alignItems={"stretch"} accept={["image/png", "image/jpeg", "image/webp"]}>
+            <FileUpload.Root maxFiles={1} alignItems={"stretch"} accept={["image/png", "image/jpeg", "image/webp"]}
+            onFileChange={selectFile} 
+            >
               <FileUpload.Label>
                 Image of bug or a feature
               </FileUpload.Label>
