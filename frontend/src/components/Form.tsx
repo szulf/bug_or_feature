@@ -23,6 +23,7 @@ function Form() {
     console.log(details.acceptedFiles[0])
   }
 
+
   async function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     setIsSubmitting(true)
     e.preventDefault()
@@ -38,19 +39,19 @@ function Form() {
         body.append("image", file)
       }
 
-      const response = await fetch("http://localhost:3000/add-post", {
+      await fetch("http://localhost:3000/add-post", {
         body: body,
         method: "POST",
       })
 
-      const postId = await response.text()
-
-      console.log(postId)
-
       toaster.create({
         type: "success",
-        title: "Post created successfully: " + postId
+        title: `Post ${postCreationData.message} created successfully!`
       })
+
+      setTimeout(() => {
+        window.location.reload()
+      }, 300)
 
     setIsSubmitting(false)
     } catch(err) {
