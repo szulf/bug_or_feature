@@ -185,7 +185,7 @@ func main() {
 	f.Use(cors.New())
 
 	f.Post("/add-post", app.AddPost)
-	f.Get("/test", app.GetPosts)
+	f.Get("/all-posts", app.GetPosts)
 
 	f.Listen(":3000")
 }
