@@ -98,13 +98,6 @@ func (a *App) getPosts() ([]Post, error) {
 	return posts, nil
 }
 
-func extensionFromMIME(mime string) string {
-	if mime == "image/jpeg" {
-		return "jpg"
-	}
-	return ""
-}
-
 // TODO: do any of the errors leave some bad state behind?
 func (a *App) AddPost(c fiber.Ctx) error {
 	message := c.FormValue("message")
@@ -129,9 +122,8 @@ func (a *App) AddPost(c fiber.Ctx) error {
 			return fiber.ErrBadRequest
 		}
 		filename := make([]byte, 16)
-		contentType := image.Header.Get("Content-Type")
 		rand.Read(filename)
-		imgPath = filepath.Join("images", hex.EncodeToString(filename)+"."+extensionFromMIME(contentType))
+		imgPath = filepath.Join("images", hex.EncodeToString(filename))
 		err = os.WriteFile(imgPath, imageData, 0666)
 		if err != nil {
 			log.Println("Failed to write image file on server.")
