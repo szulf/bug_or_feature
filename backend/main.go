@@ -18,6 +18,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// TODO: log err's in log.Println everywhere, to get more specific error messages
+
 type PostType string
 
 const (
@@ -25,14 +27,24 @@ const (
 	PostFeature PostType = "FEATURE"
 )
 
+type UpvoteValue string
+
+const (
+	UpvoteUP   UpvoteValue = "UP"
+	UpvoteDOWN UpvoteValue = "DOWN"
+)
+
 type Post struct {
-	Id               string           `json:"id" bson:"id"`
-	Message          string           `json:"message" bson:"message"`
-	ImagePath        string           `json:"image_path" bson:"image_path"`
-	CreationDate     time.Time        `json:"creation_date" bson:"creation_date"`
-	OwnersPostChoice PostType         `json:"owners_post_choice" bson:"owners_post_choice"`
-	VoteCounts       map[PostType]int `json:"vote_counts" bson:"vote_counts"`
-	UpvoteCount      int              `json:"upvote_count" bson:"upvote_count"`
+	OwnerIP          string    `json:"owner_ip" bson:"owner_ip"`
+	Id               string    `json:"id" bson:"id"`
+	Message          string    `json:"message" bson:"message"`
+	ImagePath        string    `json:"image_path" bson:"image_path"`
+	CreationDate     time.Time `json:"creation_date" bson:"creation_date"`
+	OwnersPostChoice PostType  `json:"owners_post_choice" bson:"owners_post_choice"`
+	// NOTE: map from users ips to their upvote value
+	UpvoteValues map[string]UpvoteValue `json:"upvote_count" bson:"upvote_count"`
+	// NOTE: map from users ip to their vote type
+	VoteValues map[string]PostType `json:"vote_values" bson:"vote_values"`
 }
 
 type App struct {
@@ -132,13 +144,14 @@ func (a *App) AddPost(c fiber.Ctx) error {
 	}
 
 	post := Post{
+		OwnerIP:          c.IP(),
 		Id:               uuid.NewString(),
 		Message:          message,
 		ImagePath:        imgPath,
 		CreationDate:     time.Now(),
 		OwnersPostChoice: PostType(ownersPostChoice),
-		VoteCounts:       map[PostType]int{PostBug: 0, PostFeature: 0},
-		UpvoteCount:      0,
+		VoteValues:       map[string]PostType{},
+		UpvoteValues:     map[string]UpvoteValue{},
 	}
 	err = a.storePost(post)
 	if err != nil {
