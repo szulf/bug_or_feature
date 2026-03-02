@@ -1,20 +1,33 @@
 import { Tabs } from '@chakra-ui/react'
 import { LuLibraryBig, LuFilePlus, LuTrophy } from "react-icons/lu"
 import Form from './Form'
+import { useNavigate } from 'react-router'
 
 function PageTabs() {
+  const navigate = useNavigate()
+
+  function navigateTo(href: string) {
+    navigate(href)
+  }
+
+  let defaultValue = window.location.pathname.slice(1)
+  if (!defaultValue) {
+    defaultValue = "all_posts"
+  }
+  
+
   return (
-    <Tabs.Root defaultValue="all_posts" w={"75%"}>
+    <Tabs.Root defaultValue={defaultValue} w={"75%"}>
       <Tabs.List>
-        <Tabs.Trigger value="all_posts">
+        <Tabs.Trigger value="all_posts" onClick={() => navigateTo("/")}>
           <LuLibraryBig />
           All posts
         </Tabs.Trigger>
-        <Tabs.Trigger value="create_new_post">
+        <Tabs.Trigger value="create_new_post" onClick={() => navigateTo("/create_new_post")}>
           <LuFilePlus />
           Create new post
         </Tabs.Trigger>
-        <Tabs.Trigger value="bug_of_the_week">
+        <Tabs.Trigger value="bug_of_the_week" onClick={() => navigateTo("/bug_of_the_week")}>
           <LuTrophy />
           Bug of the week
         </Tabs.Trigger>

@@ -7,6 +7,7 @@ import { BugOrFeature, PostCreationDataSchema, type PostCreationData } from "../
 import { toaster } from "./ui/toaster"
 import { ZodError} from "zod"
 import type { FileChangeDetails } from "@zag-js/file-upload"
+import { useNavigate } from "react-router"
 
 function Form() {
   const [formData, setFormData] = useState<PostCreationData>({
@@ -15,12 +16,10 @@ function Form() {
   })
 
   const [file, setFile] = useState<File | null>()
-
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   function selectFile(details: FileChangeDetails) {
     setFile(details.acceptedFiles[0])
-    console.log(details.acceptedFiles[0])
   }
 
 
@@ -50,7 +49,7 @@ function Form() {
       })
 
       setTimeout(() => {
-        window.location.reload()
+        window.location.assign("/")
       }, 300)
 
     setIsSubmitting(false)
