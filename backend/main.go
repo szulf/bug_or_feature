@@ -19,17 +19,20 @@ import (
 )
 
 // TODO: log err's in log.Println everywhere, to get more specific error messages
+// TODO: rewrite tests to use golangs native tests
 
 type PostType string
 
 const (
-	PostBug     PostType = "BUG"
-	PostFeature PostType = "FEATURE"
+	PostNONE    PostType = "NONE"
+	PostBUG     PostType = "BUG"
+	PostFEATURE PostType = "FEATURE"
 )
 
 type UpvoteValue string
 
 const (
+	UpvoteNONE UpvoteValue = "NONE"
 	UpvoteUP   UpvoteValue = "UP"
 	UpvoteDOWN UpvoteValue = "DOWN"
 )
@@ -110,6 +113,21 @@ func (a *App) getPosts() ([]Post, error) {
 	return posts, nil
 }
 
+func (a *App) updatePost(id string, newPost Post) error {
+	newPost.Id = id
+	j, err := json.Marshal(newPost)
+	if err != nil {
+		log.Println("Failed to marshal updated post.")
+		return err
+	}
+	err = a.store.Set(id, []byte(j), 0)
+	if err != nil {
+		log.Println("Failed to store updated post.")
+		return err
+	}
+	return nil
+}
+
 // TODO: do any of the errors leave some bad state behind?
 func (a *App) AddPost(c fiber.Ctx) error {
 	message := c.FormValue("message")
@@ -171,6 +189,66 @@ func (a *App) GetPosts(c fiber.Ctx) error {
 	return c.JSON(posts)
 }
 
+type UpvoteData struct {
+	Id    string      `json:"id"`
+	Value UpvoteValue `json:"value"`
+}
+
+func (a *App) Upvote(c fiber.Ctx) error {
+	data := UpvoteData{}
+	err := json.Unmarshal(c.Body(), &data)
+	if err != nil || (data.Value != UpvoteNONE && data.Value != UpvoteUP && data.Value != UpvoteDOWN) {
+		log.Println("Failed to parse json body")
+		return err
+	}
+	post, err := a.getPostById(data.Id)
+	if err != nil {
+		log.Println("Failed to get post.")
+		return err
+	}
+	if data.Value == UpvoteNONE {
+		delete(post.UpvoteValues, c.IP())
+	} else {
+		post.UpvoteValues[c.IP()] = data.Value
+	}
+	err = a.updatePost(data.Id, post)
+	if err != nil {
+		log.Println("Failed to update post in db.")
+		return err
+	}
+	return nil
+}
+
+type VoteData struct {
+	Id    string   `json:"id"`
+	Value PostType `json:"value"`
+}
+
+func (a *App) Vote(c fiber.Ctx) error {
+	data := VoteData{}
+	err := json.Unmarshal(c.Body(), &data)
+	if err != nil || (data.Value != PostNONE && data.Value != PostBUG && data.Value != PostFEATURE) {
+		log.Println("Failed to parse json body")
+		return err
+	}
+	post, err := a.getPostById(data.Id)
+	if err != nil {
+		log.Println("Failed to get post")
+		return err
+	}
+	if data.Value == PostNONE {
+		delete(post.VoteValues, c.IP())
+	} else {
+		post.VoteValues[c.IP()] = data.Value
+	}
+	err = a.updatePost(data.Id, post)
+	if err != nil {
+		log.Println("Failed to update post in db")
+		return err
+	}
+	return nil
+}
+
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
 
@@ -191,6 +269,8 @@ func main() {
 
 	f.Post("/add-post", app.AddPost)
 	f.Get("/all-posts", app.GetPosts)
+	f.Post("/upvote", app.Upvote)
+	f.Post("/vote", app.Vote)
 
 	f.Listen(":3000")
 }
