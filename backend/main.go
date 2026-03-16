@@ -213,6 +213,32 @@ func (a *App) Upvote(c fiber.Ctx) error {
 	return nil
 }
 
+type VoteData struct {
+	Id    string   `json:"id"`
+	Value PostType `json:"value"`
+}
+
+func (a *App) Vote(c fiber.Ctx) error {
+	data := VoteData{}
+	err := json.Unmarshal(c.Body(), &data)
+	if err != nil || (data.Value != PostBug && data.Value != PostFeature) {
+		log.Println("Failed to parse json body")
+		return err
+	}
+	post, err := a.getPostById(data.Id)
+	if err != nil {
+		log.Println("Failed to get post")
+		return err
+	}
+	post.VoteValues[c.IP()] = data.Value
+	err = a.updatePost(data.Id, post)
+	if err != nil {
+		log.Println("Failed to update post in db")
+		return err
+	}
+	return nil
+}
+
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
 
@@ -234,6 +260,7 @@ func main() {
 	f.Post("/add-post", app.AddPost)
 	f.Get("/all-posts", app.GetPosts)
 	f.Post("/upvote", app.Upvote)
+	f.Post("/vote", app.Vote)
 
 	f.Listen(":3000")
 }

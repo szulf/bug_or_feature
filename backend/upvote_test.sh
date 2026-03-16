@@ -3,7 +3,7 @@
 URL="127.0.0.1:3000"
 
 post_id=$(curl \
-  -F 'message="another test msg"' \
+  -F 'message="upvote test message"' \
   -F 'owners_post_choice="BUG"' \
   "$URL/add-post")
 
