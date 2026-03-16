@@ -24,13 +24,15 @@ import (
 type PostType string
 
 const (
-	PostBug     PostType = "BUG"
-	PostFeature PostType = "FEATURE"
+	PostNONE    PostType = "NONE"
+	PostBUG     PostType = "BUG"
+	PostFEATURE PostType = "FEATURE"
 )
 
 type UpvoteValue string
 
 const (
+	UpvoteNONE UpvoteValue = "NONE"
 	UpvoteUP   UpvoteValue = "UP"
 	UpvoteDOWN UpvoteValue = "DOWN"
 )
@@ -195,7 +197,7 @@ type UpvoteData struct {
 func (a *App) Upvote(c fiber.Ctx) error {
 	data := UpvoteData{}
 	err := json.Unmarshal(c.Body(), &data)
-	if err != nil || (data.Value != UpvoteUP && data.Value != UpvoteDOWN) {
+	if err != nil || (data.Value != UpvoteNONE && data.Value != UpvoteUP && data.Value != UpvoteDOWN) {
 		log.Println("Failed to parse json body")
 		return err
 	}
@@ -204,7 +206,11 @@ func (a *App) Upvote(c fiber.Ctx) error {
 		log.Println("Failed to get post.")
 		return err
 	}
-	post.UpvoteValues[c.IP()] = data.Value
+	if data.Value == UpvoteNONE {
+		delete(post.UpvoteValues, c.IP())
+	} else {
+		post.UpvoteValues[c.IP()] = data.Value
+	}
 	err = a.updatePost(data.Id, post)
 	if err != nil {
 		log.Println("Failed to update post in db.")
@@ -221,7 +227,7 @@ type VoteData struct {
 func (a *App) Vote(c fiber.Ctx) error {
 	data := VoteData{}
 	err := json.Unmarshal(c.Body(), &data)
-	if err != nil || (data.Value != PostBug && data.Value != PostFeature) {
+	if err != nil || (data.Value != PostNONE && data.Value != PostBUG && data.Value != PostFEATURE) {
 		log.Println("Failed to parse json body")
 		return err
 	}
@@ -230,7 +236,11 @@ func (a *App) Vote(c fiber.Ctx) error {
 		log.Println("Failed to get post")
 		return err
 	}
-	post.VoteValues[c.IP()] = data.Value
+	if data.Value == PostNONE {
+		delete(post.VoteValues, c.IP())
+	} else {
+		post.VoteValues[c.IP()] = data.Value
+	}
 	err = a.updatePost(data.Id, post)
 	if err != nil {
 		log.Println("Failed to update post in db")
