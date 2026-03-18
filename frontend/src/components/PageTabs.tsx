@@ -33,13 +33,13 @@ function PageTabs() {
           Bug of the week
         </Tabs.Trigger>
       </Tabs.List>
-      <Tabs.Content value="all_posts">
+      <Tabs.Content value="all_posts" mt={8}>
         <AllPosts />
       </Tabs.Content>
-      <Tabs.Content value="create_new_post">
+      <Tabs.Content value="create_new_post" mt={8}>
         <Form />
       </Tabs.Content>
-      <Tabs.Content value="bug_of_the_week">
+      <Tabs.Content value="bug_of_the_week" mt={8}>
         {/* TODO: create all posts component*/}
         Bug of the week will go here
       </Tabs.Content>
