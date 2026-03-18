@@ -18,8 +18,8 @@ function PageTabs() {
   
 
   return (
-    <Tabs.Root defaultValue={defaultValue} w={"75%"}>
-      <Tabs.List>
+    <Tabs.Root defaultValue={defaultValue} className='w-full md:w-3/4'>
+      <Tabs.List className='tabs-list'>
         <Tabs.Trigger value="all_posts" onClick={() => navigateTo("/")}>
           <LuLibraryBig />
           All posts

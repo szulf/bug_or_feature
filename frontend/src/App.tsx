@@ -10,7 +10,7 @@ function App() {
         <Route path="/create_new_post" />
         <Route path="/bug_of_the_week" />
       </Routes>
-      <Container maxW={"3/4"} my={"8"} display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"} gap={"8"}>
+      <Container className="" my={"16"} display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"} gap={"16"}>
         <Heading size={"4xl"}>
           Bug or a Feature
         </Heading>

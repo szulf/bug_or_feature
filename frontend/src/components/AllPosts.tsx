@@ -98,6 +98,7 @@ function AllPosts() {
       .then(res => res.json())
       .then(data => {
         setUserIp(data.ip);
+        console.log(data.ip)
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -148,7 +149,7 @@ function AllPosts() {
   if (loading) return <Center h="100vh"><Spinner size="xl" color="blue.500" /></Center>;
 
   return (
-    <Stack gap="10" p="8" align="center" minH="100vh">
+    <Stack gap="10" p="8" align="center" minH="100vh" className="bg-red-500">
       <Box width="full" maxW="xl" bg="white" p="4" borderRadius="2xl" boxShadow="md">
         <Text fontSize="xs" fontWeight="bold" color="gray.500" mb="3" textAlign="center" letterSpacing="widest">
           SORTING
@@ -184,19 +185,6 @@ function AllPosts() {
         return (
           <Card.Root key={post.id} width="full" maxW="xl" boxShadow="xl" borderRadius="2xl" bg="white" border="none" overflow="hidden">
             <Card.Header p="5">
-              <Grid templateColumns="1fr auto" alignItems="center" gap={4}>
-                {hasVotedType ? (
-                  <Badge size="lg" variant="solid" colorPalette={post.owners_post_choice === BugOrFeature.Bug ? "red" : "green"}>
-                    Author's choice: {post.owners_post_choice}
-                  </Badge>
-                ) : (
-                  <Badge size="lg" variant="subtle" colorPalette="gray" fontStyle="italic">
-                    <TbLock style={{ marginRight: '4px', display: 'inline' }} />
-                    Vote to reveal the author's choice
-                  </Badge>
-                )}
-                <Text fontSize="xs" color="gray.400">{post.creation_date.toLocaleDateString()}</Text>
-              </Grid>
 
               <Card.Title mt="4" fontSize="2xl" fontWeight="bold" textAlign="center" lineHeight="shorter">
                 {post.message}
@@ -210,11 +198,20 @@ function AllPosts() {
             )}
 
             <Card.Body p="5">
-              <Text mb="4" fontWeight="bold" fontSize="xs" color="gray.400" textAlign="center" letterSpacing="widest">
-                WHAT DO YOU THINK IT IS?
-              </Text>
+              <Grid templateColumns="1fr auto" alignItems="center" gap={4}>
+                {hasVotedType ? (
+                  <Badge size="lg" variant="solid" colorPalette={post.owners_post_choice === BugOrFeature.Bug ? "red" : "green"}>
+                    Author's choice: {post.owners_post_choice}
+                  </Badge>
+                ) : (
+                  <Badge size="lg" variant="subtle" colorPalette="gray" fontStyle="italic">
+                    <TbLock style={{ marginRight: '4px', display: 'inline' }} />
+                    Vote to reveal the author's choice
+                  </Badge>
+                )}
+              </Grid>
               
-              <Grid templateColumns="1fr 1fr" gap="4">
+              <Grid templateColumns="1fr 1fr" gap="4" mt={4}>
                 <Button 
                   size="lg" 
                   height="70px"
@@ -236,7 +233,7 @@ function AllPosts() {
 
             <Separator />
 
-            <Card.Footer bg="gray.50" p="4">                
+            <Card.Footer bg="gray.50" p="4" className="flex justify-between">                
                 <Grid templateColumns="auto 50px auto" alignItems="center" bg="white" borderRadius="full" p="1" shadow="inner" border="1px solid" borderColor="gray.200">
                   <IconButton
                     aria-label="Down"
@@ -259,7 +256,9 @@ function AllPosts() {
                     onClick={() => handleRankingVote(post.id, "UP")}>
                     {userRankVote === "UP" ? <TbArrowBigUpFilled size={28} /> : <TbArrowBigUp size={28} />}
                   </IconButton>
+
                 </Grid>
+                <Text fontSize="md" color="gray.600">{post.creation_date.toLocaleDateString()}</Text>
             </Card.Footer>
           </Card.Root>
         );

@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+@media (max-width: 48rem) {
+    .tabs-list {
+        display: flex;
+        flex-direction: column;
+    }
+}
