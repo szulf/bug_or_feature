@@ -46,7 +46,7 @@ type Post struct {
 	VoteValues map[string]PostType `json:"vote_values" bson:"vote_values"`
 }
 
-func AddPostNEW(c fiber.Ctx) error {
+func AddPost(c fiber.Ctx) error {
 	message := c.FormValue("message")
 	ownersPostChoice := c.FormValue("owners_post_choice")
 	if message == "" || (ownersPostChoice != "BUG" && ownersPostChoice != "FEATURE") {
@@ -165,6 +165,39 @@ func Vote(c fiber.Ctx) error {
 	return nil
 }
 
+func PostOfTheWeek(c fiber.Ctx) error {
+	daysToLastMonday := time.Monday - time.Now().Weekday()
+	// NOTE: because time.Sunday is 0 and not 7
+	if daysToLastMonday > 0 {
+		daysToLastMonday = -6
+	}
+	date := time.Now().AddDate(0, 0, int(daysToLastMonday)).Round(time.Hour * 24)
+	log.Println(date)
+	posts, err := GetPostsFromLastTime(date)
+	if err != nil {
+		log.Println("Failed to get posts from last time: ", err)
+		return err
+	}
+	maxValue := -2147483648
+	var maxPost *Post = nil
+	for _, post := range posts {
+		value := 0
+		for _, v := range post.UpvoteValues {
+			switch v {
+			case UpvoteUP:
+				value++
+			case UpvoteDOWN:
+				value--
+			}
+		}
+		if value > maxValue {
+			maxValue = value
+			maxPost = &post
+		}
+	}
+	return c.JSON(maxPost)
+}
+
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
 
@@ -181,10 +214,11 @@ func main() {
 		AllowMethods: []string{"*"},
 	}))
 
-	f.Post("/add-post", AddPostNEW)
+	f.Post("/add-post", AddPost)
 	f.Get("/get-posts", GetPosts)
 	f.Post("/upvote", Upvote)
 	f.Post("/vote", Vote)
+	f.Get("/post-of-the-week", PostOfTheWeek)
 
 	f.Listen(":3000")
 }

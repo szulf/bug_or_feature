@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -83,4 +84,26 @@ func UpdatePost(id string, newPost Post) error {
 		return err
 	}
 	return nil
+}
+
+func GetPostsFromLastTime(time time.Time) ([]Post, error) {
+	filter := bson.M{
+		"creation_date": bson.M{
+			"$gte": time,
+		},
+	}
+	cur, err := coll.Find(context.TODO(), filter)
+	if err != nil {
+		return []Post{}, err
+	}
+	posts := []Post{}
+	for cur.Next(context.TODO()) {
+		p := Post{}
+		err := cur.Decode(&p)
+		if err != nil {
+			return []Post{}, err
+		}
+		posts = append(posts, p)
+	}
+	return posts, nil
 }
