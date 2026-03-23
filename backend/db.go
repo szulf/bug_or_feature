@@ -12,9 +12,8 @@ import (
 
 var client *mongo.Client
 var db *mongo.Database
-var coll *mongo.Collection
 
-func CreateConn(uri, dbName, collectionName string) error {
+func CreateConn(uri, dbName string) error {
 	var err error
 	client, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
@@ -22,7 +21,6 @@ func CreateConn(uri, dbName, collectionName string) error {
 		return err
 	}
 	db = client.Database(dbName)
-	coll = db.Collection(collectionName)
 	return nil
 }
 
@@ -34,7 +32,7 @@ func CloseConn() {
 }
 
 func StorePost(p Post) error {
-	_, err := coll.InsertOne(context.TODO(), p)
+	_, err := db.Collection("bugs").InsertOne(context.TODO(), p)
 	if err != nil {
 		log.Println("Failed to store post in db")
 		return err
@@ -43,7 +41,7 @@ func StorePost(p Post) error {
 }
 
 func GetAllPosts() ([]Post, error) {
-	cur, err := coll.Find(context.TODO(), bson.M{})
+	cur, err := db.Collection("bugs").Find(context.TODO(), bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +61,7 @@ func GetPostById(id string) (Post, error) {
 	filter := bson.M{
 		"_id": id,
 	}
-	cur, err := coll.Find(context.TODO(), filter)
+	cur, err := db.Collection("bugs").Find(context.TODO(), filter)
 	if err != nil {
 		return Post{}, nil
 	}
@@ -78,7 +76,7 @@ func GetPostById(id string) (Post, error) {
 
 func UpdatePost(id string, newPost Post) error {
 	filter := bson.M{"_id": id}
-	_, err := coll.ReplaceOne(context.TODO(), filter, newPost)
+	_, err := db.Collection("bugs").ReplaceOne(context.TODO(), filter, newPost)
 	if err != nil {
 		log.Println("Failed to update post in db")
 		return err
@@ -92,7 +90,7 @@ func GetPostsFromLastTime(time time.Time) ([]Post, error) {
 			"$gte": time,
 		},
 	}
-	cur, err := coll.Find(context.TODO(), filter)
+	cur, err := db.Collection("bugs").Find(context.TODO(), filter)
 	if err != nil {
 		return []Post{}, err
 	}

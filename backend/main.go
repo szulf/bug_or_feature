@@ -201,7 +201,7 @@ func PostOfTheWeek(c fiber.Ctx) error {
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
 
-	err := CreateConn("mongodb://root:example@mongo:27017/", "bug", "bugs")
+	err := CreateConn("mongodb://root:example@mongo:27017/", "bug")
 	if err != nil {
 		panic(err)
 	}
