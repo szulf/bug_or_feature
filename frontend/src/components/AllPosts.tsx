@@ -186,8 +186,8 @@ function AllPosts() {
                   </Badge>
                 ) : (
                   <Badge size="lg" variant="subtle" colorPalette="gray" fontStyle="italic">
-                    <TbLock style={{ marginRight: '4px', display: 'inline' }} />
-                    Vote to reveal the author's choice & stats
+                    <TbLock style={{ marginRight: '4px', textWrap: "wrap" }} />
+                    Vote to reveal author's choice
                   </Badge>
                 )}
               </Box>
@@ -209,7 +209,7 @@ function AllPosts() {
                 </Grid>
               ) : (
                 // Post-vote State: Animated Bars
-                <Grid templateColumns="1fr 1fr" gap="4" h="100px">
+                <Grid templateColumns="1fr 1fr" gap="4" h="150px">
                   {/* Bug Bar */}
                   <Box position="relative" h="full" bg="gray.100" borderRadius="xl" overflow="hidden" display="flex" alignItems="end">
                     <motion.div
