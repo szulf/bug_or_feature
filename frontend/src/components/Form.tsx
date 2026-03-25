@@ -71,7 +71,7 @@ function Form() {
   }
 
   return (
-    <Box p={"8"} border={"1px solid #ddd"} borderRadius={"sm"} minW={"400px"}>
+    <Box p={"8"} border={"1px solid #ddd"} borderRadius={"sm"} className="shadow-2xl">
         <form action="" onSubmit={onSubmit}>
           <Box display={"flex"} justifyContent={"center"} alignItems={"start"} gap={"8"} flexDir={"column"}>
             <Field.Root>
@@ -108,13 +108,13 @@ function Form() {
               </Field.Label>
               <Box w={"full"} display={"flex"} justifyContent={"center"} alignItems={"center"} gap={"8"}>
                 <Button w={"40"} h={"40"} fontSize={"4xl"}
-                scale={0.85}
+                className="scale-75 lg:scale-90"
                 variant={formData.owners_post_choice === BugOrFeature.Bug ? "solid": "outline"} onClick={() => setFormData({
                   ...formData,
                   owners_post_choice: BugOrFeature.Bug
                 })}>BUG</Button>
                 <Button w={"40"} h={"40"} fontSize={"4xl"}
-                scale={0.85}
+                className="scale-75 lg:scale-90"
                 variant={formData.owners_post_choice === BugOrFeature.Feature ? "solid": "outline"} onClick={() => setFormData({
                   ...formData,
                   owners_post_choice: BugOrFeature.Feature

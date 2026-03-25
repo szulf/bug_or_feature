@@ -18,8 +18,8 @@ function PageTabs() {
   
 
   return (
-    <Tabs.Root defaultValue={defaultValue} w={"75%"}>
-      <Tabs.List>
+    <Tabs.Root defaultValue={defaultValue} className='w-full md:w-3/4 self-center'>
+      <Tabs.List className='tabs-list'>
         <Tabs.Trigger value="all_posts" onClick={() => navigateTo("/")}>
           <LuLibraryBig />
           All posts
@@ -33,13 +33,13 @@ function PageTabs() {
           Bug of the week
         </Tabs.Trigger>
       </Tabs.List>
-      <Tabs.Content value="all_posts">
+      <Tabs.Content value="all_posts" mt={8}>
         <AllPosts />
       </Tabs.Content>
-      <Tabs.Content value="create_new_post">
+      <Tabs.Content value="create_new_post" mt={8}>
         <Form />
       </Tabs.Content>
-      <Tabs.Content value="bug_of_the_week">
+      <Tabs.Content value="bug_of_the_week" mt={8}>
         {/* TODO: create all posts component*/}
         Bug of the week will go here
       </Tabs.Content>
