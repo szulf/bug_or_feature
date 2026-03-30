@@ -13,9 +13,9 @@ function AllPosts() {
   const [sortBy, setSortBy] = useState<SortOption>("score");
   const [postsData, setPostsData] = useState<Post[]>([]);
 
-  const API_BASE = "https://improved-chainsaw-j6p479r65j4fwg7-3000.app.github.dev";
+  const API_BASE = import.meta.env.VITE_FRONTEND_URL as string;
 
-  // 1. Fetch User IP and Initial Posts
+  
   useEffect(() => {
     const initData = async () => {
       try {
@@ -26,11 +26,11 @@ function AllPosts() {
         const postsRes = await fetch(`${API_BASE}/get-posts`);
         const posts = await postsRes.json();
         
-        // Ensure dates are converted from strings to Date objects
+        
         const formattedPosts = posts.map((p: any) => ({
           ...p,
           creation_date: new Date(p.creation_date),
-          // Backend might send Map as Object, convert if necessary
+          
           upvote_values: new Map(Object.entries(p.upvote_values || {})),
           vote_values: new Map(Object.entries(p.vote_values || {}))
         }));
@@ -46,13 +46,19 @@ function AllPosts() {
     initData();
   }, []);
 
-  const getScore = (post: Post) => {
+  const getScore = (post: any) => {
+    // Pobieramy same wartości ("UP", "DOWN") z obiektu upvote_count
+    const votes = Object.values(post.upvote_count);
+    
     let score = 0;
-    post.upvote_values.forEach((val) => (score += val === "UP" ? 1 : -1));
+    votes.forEach((val) => {
+      score += val === "UP" ? 1 : -1;
+    });
+    
     return score;
   };
 
-  // 2. Sorting Logic
+  
   const sortedPosts = [...postsData].sort((a, b) => {
     if (sortBy === "score") {
       return getScore(b) - getScore(a);
@@ -60,13 +66,13 @@ function AllPosts() {
     return b.creation_date.getTime() - a.creation_date.getTime();
   });
 
-  // 3. Handle Ranking (Upvote/Downvote)
+  
   const handleRankingVote = async (postId: string, voteType: UpvoteValue) => {
     try {
       const response = await fetch(`${API_BASE}/upvote`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ post_id: postId, vote_type: voteType }),
+        body: JSON.stringify({ id: postId, value: voteType }), 
       });
 
       if (!response.ok) throw new Error();
@@ -82,13 +88,14 @@ function AllPosts() {
     }
   };
 
-  // 4. Handle Type Vote (Bug vs Feature)
+  
   const handleTypeVote = async (postId: string, type: BugOrFeature) => {
     try {
       const response = await fetch(`${API_BASE}/vote`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ post_id: postId, type: type }),
+        // Zmieniono: post_id -> id, type -> value
+        body: JSON.stringify({ id: postId, value: type }), 
       });
 
       if (!response.ok) throw new Error();

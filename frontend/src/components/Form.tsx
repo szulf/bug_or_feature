@@ -38,7 +38,7 @@ function Form() {
         body.append("image", file)
       }
 
-      await fetch("http://localhost:3000/add-post", {
+      await fetch(import.meta.env.VITE_FRONTEND_URL + "/add-post", {
         body: body,
         method: "POST",
       })

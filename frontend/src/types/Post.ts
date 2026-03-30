@@ -9,6 +9,7 @@ export interface Post {
     image_path: string
     creation_date: Date
     owners_post_choice: BugOrFeature
+    upvote_count: Map<string, UpvoteValue>
     upvote_values: Map<string, UpvoteValue>
     vote_values: Map<string, BugOrFeature>
 }
