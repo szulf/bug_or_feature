@@ -3,6 +3,7 @@ import { LuLibraryBig, LuFilePlus, LuTrophy } from "react-icons/lu"
 import Form from './Form'
 import { useNavigate } from "react-router"
 import AllPosts from './AllPosts'
+import BugOfTheWeek from './BugOfTheWeek'
 
 function PageTabs() {
   const navigate = useNavigate()
@@ -40,8 +41,7 @@ function PageTabs() {
         <Form />
       </Tabs.Content>
       <Tabs.Content value="bug_of_the_week" mt={8}>
-        {/* TODO: create all posts component*/}
-        Bug of the week will go here
+        <BugOfTheWeek />
       </Tabs.Content>
     </Tabs.Root>
   )
